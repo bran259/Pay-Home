@@ -200,6 +200,159 @@ The project supports two build variants:
 ./gradlew connectedAndroidTest
 ```
 
+## Viewing Project Output
+
+### APK Location
+After building successfully, your APK is located at:
+```
+app/build/outputs/apk/debug/app-debug.apk
+```
+
+### Installation Methods
+
+#### Method 1: Using ADB (Android Debug Bridge)
+```bash
+# Install APK to connected device/emulator
+adb install app/build/outputs/apk/debug/app-debug.apk
+
+# Uninstall app
+adb uninstall com.example.payhome
+```
+
+#### Method 2: Using Gradle
+```bash
+# Install debug APK
+./gradlew installDebug
+
+# Install release APK
+./gradlew installRelease
+```
+
+#### Method 3: Manual Installation
+1. Copy `app-debug.apk` to your Android device
+2. Enable "Install from unknown sources" in device settings
+3. Tap on the APK file to install
+
+### Runtime Output (Logcat)
+
+#### Method 1: Using Android Studio
+1. Open Android Studio
+2. Click on "Logcat" tab at the bottom
+3. Select your device and app package (`com.example.payhome`)
+4. Filter by tag or log level
+
+#### Method 2: Using Command Line
+```bash
+# View all logs
+adb logcat
+
+# Filter by your app package
+adb logcat | grep "com.example.payhome"
+
+# Filter by specific tags
+adb logcat -s "MainActivity" "MpesaApi"
+
+# Clear log buffer
+adb logcat -c
+
+# Save logs to file
+adb logcat > app_logs.txt
+```
+
+#### Method 3: Adding Logging to Your Code
+```java
+// In your Java files
+import android.util.Log;
+
+public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+    
+    private void processPayment(String phoneNumber, String password) {
+        Log.d(TAG, "Processing payment for: " + phoneNumber);
+        
+        if (password.isEmpty()) {
+            Log.e(TAG, "Password is empty");
+            return;
+        }
+        
+        Log.i(TAG, "Payment validation successful");
+    }
+}
+```
+
+### Build Output Locations
+
+#### APK Files
+- **Debug APK**: `app/build/outputs/apk/debug/app-debug.apk`
+- **Release APK**: `app/build/outputs/apk/release/app-release.apk`
+- **Metadata**: `app/build/outputs/apk/debug/output-metadata.json`
+
+#### Build Logs
+- **Gradle logs**: `app/build/outputs/logs/`
+- **Compilation logs**: View in terminal or Android Studio Build tab
+
+#### Generated Files
+- **Generated sources**: `app/build/generated/`
+- **Intermediate files**: `app/build/intermediates/`
+- **Temporary files**: `app/build/tmp/`
+
+### Testing Your App
+
+#### 1. Run on Emulator
+```bash
+# Start Android emulator
+emulator -avd <avd_name>
+
+# Install and run
+./gradlew installDebug
+adb shell am start -n com.example.payhome/.MainActivity
+```
+
+#### 2. Run on Physical Device
+```bash
+# Connect device via USB
+# Enable USB debugging in device settings
+adb devices
+
+# Install app
+./gradlew installDebug
+
+# Launch app
+adb shell am start -n com.example.payhome/.MainActivity
+```
+
+### Debugging Tips
+
+#### 1. Check App Status
+```bash
+# Check if app is installed
+adb shell pm list packages | grep "com.example.payhome"
+
+# Check app info
+adb shell dumpsys package com.example.payhome
+```
+
+#### 2. Monitor App Performance
+```bash
+# Monitor CPU usage
+adb shell top | grep "com.example.payhome"
+
+# Monitor memory usage
+adb shell dumpsys meminfo com.example.payhome
+```
+
+#### 3. Common Logcat Filters
+```bash
+# Show only errors and warnings
+adb logcat *:E
+
+# Show verbose logs for your app only
+adb logcat com.example.payhome:V
+
+# Show M-Pesa related logs
+adb logcat | grep -i "mpesa\|payment\|transaction"
+```
+
 ## Troubleshooting
 
 ### Common Issues and Solutions
