@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.myhome"
+    namespace = "com.example.payhome"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.myhome"
+        applicationId = "com.example.payhome"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
