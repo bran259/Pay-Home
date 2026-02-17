@@ -19,8 +19,11 @@ adb logcat -s "PayHomeMainActivity"
 # Show MpesaApi logs
 adb logcat -s "MpesaApi"
 
-# Show both tags
-adb logcat -s "PayHomeMainActivity:MpesaApi"
+# Show both tags (use comma separation)
+adb logcat -s "PayHomeMainActivity" "MpesaApi"
+
+# Alternative: grep method
+adb logcat | grep -E "PayHomeMainActivity|MpesaApi"
 ```
 
 ### Filter by Log Level
