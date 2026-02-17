@@ -16,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.util.Log;
+
 import com.example.payhome.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,11 +25,14 @@ public class MainActivity extends AppCompatActivity {
     private static final int SMS_PERMISSION_CODE = 100;
     private static final int INTERNET_PERMISSION_CODE = 101;
     private static final String USER_PHONE_NUMBER = "0798088797"; // Replace with dynamic phone number if needed
+    private static final String TAG = "PayHomeMainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "MainActivity onCreate started");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d(TAG, "Layout set successfully");
 
         // Get reference to the payment button
         Button payButton = findViewById(R.id.PayButton); // Ensure you have a button with this ID
@@ -39,9 +44,11 @@ public class MainActivity extends AppCompatActivity {
         payButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(TAG, "Payment button clicked");
                 showPhoneNumberDialog(); // Prompt for phone number first
             }
         });
+        Log.i(TAG, "MainActivity setup completed");
     }
 
     // Function to display a phone number input dialog
@@ -104,27 +111,36 @@ public class MainActivity extends AppCompatActivity {
 
     // Process payment logic
     private void processPayment(String phoneNumber, String password) {
+        Log.i(TAG, "Processing payment for phone: " + phoneNumber);
+        
         if (password.isEmpty()) {
+            Log.e(TAG, "Password is empty - payment failed");
             Toast.makeText(MainActivity.this, "Password cannot be empty!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Validate against stored phone number
         if (phoneNumber.equals(USER_PHONE_NUMBER)) {
+            Log.d(TAG, "Phone number validated successfully");
             // Call MpesaApi to process the payment
             com.example.payhome.MpesaApi.MpesaApi mpesaApi = new com.example.payhome.MpesaApi.MpesaApi();
             String amount = "1000"; // Set the amount for the payment
+            Log.d(TAG, "Initiating M-Pesa payment of amount: " + amount);
             boolean paymentSuccess = mpesaApi.makePayment("Rent", password, amount);
 
             if (paymentSuccess) {
+                Log.i(TAG, "Payment successful - sending confirmation SMS");
                 Toast.makeText(MainActivity.this, "Payment successful!", Toast.LENGTH_LONG).show();
                 sendConfirmationSMS("John Doe", "House No. 12", "Rent");
             } else {
+                Log.e(TAG, "Payment failed - M-Pesa transaction unsuccessful");
                 Toast.makeText(MainActivity.this, "Payment failed. Please try again.", Toast.LENGTH_LONG).show();
             }
         } else {
+            Log.w(TAG, "Phone number validation failed - expected: " + USER_PHONE_NUMBER + ", got: " + phoneNumber);
             Toast.makeText(MainActivity.this, "Incorrect phone number, please try again.", Toast.LENGTH_SHORT).show();
         }
+        Log.i(TAG, "Payment processing completed");
     }
 
     // Function to send confirmation SMS

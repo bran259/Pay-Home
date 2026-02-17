@@ -1,6 +1,7 @@
 package com.example.payhome.MpesaApi;
 
 import android.util.Base64;
+import android.util.Log;
 import okhttp3.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,11 +17,13 @@ public class MpesaApi {
     private static final String CONSUMER_SECRET = "TOcB0RRm9yhNy4xK4S0KJ2IoVBjJ5QuE7ifkLeYbdtDL6p168F7UXRrdeCkl2Psj"; // Replace with your actual consumer secret
     private static final String PHONE_NUMBER = "0798088797"; // Replace with your actual phone number
     private static final String CALLBACK_URL = "http://localhost:3000/mpesa/callback"; // Replace with your actual callback URL
+    private static final String TAG = "MpesaApi";
 
     private OkHttpClient client = new OkHttpClient();
 
     // Method to get the access token
     private String getAccessToken() throws IOException {
+        Log.d(TAG, "Requesting M-Pesa access token");
         String credentials = CONSUMER_KEY + ":" + CONSUMER_SECRET;
         String auth = "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
 
@@ -34,21 +37,29 @@ public class MpesaApi {
                 String responseBody = response.body().string();
                 // Extract access token from response
                 JSONObject json = new JSONObject(responseBody);
-                return json.getString("access_token"); // Return the actual access token
+                String accessToken = json.getString("access_token"); // Return the actual access token
+                Log.i(TAG, "Access token retrieved successfully");
+                return accessToken;
+            } else {
+                Log.e(TAG, "Failed to get access token. Response: " + response.code());
             }
         } catch (JSONException e) {
+            Log.e(TAG, "Error parsing access token response", e);
             throw new RuntimeException(e);
         }
+        Log.w(TAG, "Access token request returned null");
         return null;
     }
 
     // Method to make payment
     public boolean makePayment(String utilityType, String password, String amount) {
+        Log.i(TAG, "Starting M-Pesa payment for " + utilityType + " amount: " + amount);
         try {
             int paymentAmount = Integer.parseInt(amount); // Assuming amount is passed as a string
 
             String accessToken = getAccessToken();
             if (accessToken == null) {
+                Log.e(TAG, "Failed to retrieve access token - payment cancelled");
                 System.out.println("Failed to retrieve access token.");
                 return false; // Handle error getting access token
             }
