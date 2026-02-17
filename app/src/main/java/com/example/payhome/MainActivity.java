@@ -16,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.myhome.R;
+import com.example.payhome.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         // Validate against stored phone number
         if (phoneNumber.equals(USER_PHONE_NUMBER)) {
             // Call MpesaApi to process the payment
-            com.example.roleselectionactivity.MpesaApi mpesaApi = new com.example.roleselectionactivity.MpesaApi();
+            com.example.payhome.MpesaApi.MpesaApi mpesaApi = new com.example.payhome.MpesaApi.MpesaApi();
             String amount = "1000"; // Set the amount for the payment
             boolean paymentSuccess = mpesaApi.makePayment("Rent", password, amount);
 

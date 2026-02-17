@@ -5,7 +5,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.myhome.R;
+import com.example.payhome.R;
 
 public class LandlordSetupActivity extends AppCompatActivity {
 
