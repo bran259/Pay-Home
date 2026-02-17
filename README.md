@@ -22,6 +22,33 @@ Before running this project, ensure you have the following installed:
 - **Android Studio**: Latest version recommended
 - **Git**: For version control
 - **Android SDK**: API level 34 (Android 14)
+- **Android Debug Bridge (adb)**: For device communication and log viewing
+
+### Installing Android Debug Bridge (adb)
+
+#### On Ubuntu/Debian:
+```bash
+# Method 1: Install basic adb
+sudo apt update
+sudo apt install adb
+
+# Method 2: Install full Android platform tools (recommended)
+sudo apt install google-android-platform-tools-installer
+
+# Verify installation
+adb version
+```
+
+#### On macOS (using Homebrew):
+```bash
+brew install android-platform-tools
+```
+
+#### On Windows:
+1. Download [Android SDK Platform Tools](https://developer.android.com/studio/releases/platform-tools)
+2. Extract ZIP file
+3. Add platform-tools directory to PATH
+4. Restart terminal
 
 ### System Requirements
 - **Operating System**: Windows 10+, macOS 10.14+, or Linux (Ubuntu 18.04+)
