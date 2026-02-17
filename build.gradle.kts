@@ -2,3 +2,11 @@
 plugins {
     alias(libs.plugins.android.application)
 }
+
+// Set Java compatibility
+allprojects {
+    tasks.withType<JavaCompile> {
+        sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+        targetCompatibility = JavaVersion.VERSION_1_8.toString()
+    }
+}

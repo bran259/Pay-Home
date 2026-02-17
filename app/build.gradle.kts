@@ -5,6 +5,7 @@ plugins {
 android {
     namespace = "com.example.payhome"
     compileSdk = 34
+    compileSdkVersion = 34
 
     defaultConfig {
         applicationId = "com.example.payhome"
