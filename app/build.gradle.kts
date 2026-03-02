@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.payhome"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.payhome"
@@ -36,11 +36,11 @@ android {
 
 dependencies {
     // External libraries
-    implementation("org.json:json:20210307")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("org.json:json:20251224")
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.3.2")
+    implementation("com.squareup.okhttp3:okhttp:5.3.2")
 
     // Libs plugins (ensure these are defined in version catalogs)
     implementation(libs.appcompat)
