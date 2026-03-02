@@ -47,23 +47,6 @@ public class MainActivity extends Activity {
         // Check for SMS and Internet permissions
         checkForPermissions();
 
-        // Set up analytics button directly in onCreate
-        Log.d(TAG, "Setting up analytics button directly...");
-        TextView analyticsButton = findViewById(R.id.btn_analytics_simple);
-        if (analyticsButton != null) {
-            Log.d(TAG, "Analytics button found! Setting click listener");
-            analyticsButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "Analytics button clicked!");
-                    android.content.Intent intent = new android.content.Intent(MainActivity.this, AnalyticsActivity.class);
-                    startActivity(intent);
-                }
-            });
-        } else {
-            Log.e(TAG, "Analytics button NOT found!");
-        }
-
         // Set up payment cards click listeners
         setupPaymentCards();
 

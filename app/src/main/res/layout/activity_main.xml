@@ -131,23 +131,6 @@
 
     </LinearLayout>
 
-    <!-- Simple Analytics Button -->
-    <TextView
-        android:id="@+id/btn_analytics_simple"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="📊 VIEW SPENDING ANALYTICS"
-        android:textColor="@color/white"
-        android:background="@color/primary_blue"
-        android:padding="16dp"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/quick_stats" />
-
     <!-- Payment Options Section -->
     <TextView
         android:id="@+id/payment_options_title"
@@ -160,7 +143,7 @@
         android:textColor="@color/text_primary"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/btn_analytics_simple" />
+        app:layout_constraintTop_toBottomOf="@id/quick_stats" />
 
     <!-- Payment Cards -->
     <LinearLayout
