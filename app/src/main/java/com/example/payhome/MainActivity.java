@@ -49,6 +49,9 @@ public class MainActivity extends Activity {
         // Set up payment cards click listeners
         setupPaymentCards();
 
+        // Set up analytics button
+        setupAnalyticsButton();
+
         // Set up payment history
         setupPaymentHistory();
 
@@ -107,6 +110,21 @@ public class MainActivity extends Activity {
         paymentHistoryRecycler.setLayoutManager(new LinearLayoutManager(this));
         
         Log.d(TAG, "Payment history setup completed with " + payments.size() + " items");
+    }
+
+    private void setupAnalyticsButton() {
+        Button analyticsButton = findViewById(R.id.btn_analytics);
+        analyticsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Analytics button clicked");
+                // Open Analytics Activity
+                android.content.Intent intent = new android.content.Intent(MainActivity.this, AnalyticsActivity.class);
+                startActivity(intent);
+            }
+        });
+        
+        Log.d(TAG, "Analytics button setup completed");
     }
 
     // Function to display a phone number input dialog

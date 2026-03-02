@@ -34,6 +34,11 @@
             android:name=".LandlordSetupActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".AnalyticsActivity"
+            android:exported="false"
+            android:label="Spending Analytics" />
+
     </application>
 
 </manifest>
