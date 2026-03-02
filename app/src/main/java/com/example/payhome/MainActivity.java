@@ -16,8 +16,16 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import android.util.Log;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.payhome.R;
+import com.example.payhome.adapters.PaymentHistoryAdapter;
+import com.example.payhome.models.Payment;
+import com.example.payhome.utils.PaymentData;
+import androidx.cardview.widget.CardView;
+
+import java.util.List;
 
 public class MainActivity extends Activity {
 
@@ -33,41 +41,70 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "Layout set successfully");
 
-        // Get reference to the payment buttons
-        Button payButton = findViewById(R.id.PayButton); // Pay Rent button
-        Button payStimaButton = findViewById(R.id.PayStima); // Pay Electricity button
-        Button payWaterButton = findViewById(R.id.PayWater); // Pay Water button
-
         // Check for SMS and Internet permissions
         checkForPermissions();
 
-        // Set up the onClickListener for the Pay Rent button
-        payButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Pay Rent button clicked");
-                showPhoneNumberDialog("Rent"); // Prompt for phone number first
-            }
-        });
+        // Set up payment cards click listeners
+        setupPaymentCards();
 
-        // Set up the onClickListener for the Pay Electricity button
-        payStimaButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Pay Electricity button clicked");
-                showPhoneNumberDialog("Electricity"); // Prompt for phone number first
-            }
-        });
+        // Set up payment history
+        setupPaymentHistory();
 
-        // Set up the onClickListener for the Pay Water button
-        payWaterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Pay Water button clicked");
-                showPhoneNumberDialog("Water"); // Prompt for phone number first
-            }
-        });
         Log.i(TAG, "MainActivity setup completed");
+    }
+
+    private void setupPaymentCards() {
+        // Find payment cards container
+        View paymentCards = findViewById(R.id.payment_cards);
+        
+        // Get individual card views from the LinearLayout
+        if (paymentCards instanceof android.widget.LinearLayout) {
+            android.widget.LinearLayout cardsLayout = (android.widget.LinearLayout) paymentCards;
+            
+            // Rent card (first child)
+            CardView rentCardView = (CardView) cardsLayout.getChildAt(0);
+            rentCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "Pay Rent card clicked");
+                    showPhoneNumberDialog("Rent");
+                }
+            });
+
+            // Electricity card (second child)
+            CardView electricityCardView = (CardView) cardsLayout.getChildAt(1);
+            electricityCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "Pay Electricity card clicked");
+                    showPhoneNumberDialog("Electricity");
+                }
+            });
+
+            // Water card (third child)
+            CardView waterCardView = (CardView) cardsLayout.getChildAt(2);
+            waterCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "Pay Water card clicked");
+                    showPhoneNumberDialog("Water");
+                }
+            });
+        }
+    }
+
+    private void setupPaymentHistory() {
+        RecyclerView paymentHistoryRecycler = findViewById(R.id.payment_history_recycler);
+        
+        // Get mock payment data
+        List<Payment> payments = PaymentData.getMockPayments();
+        
+        // Create and set adapter
+        PaymentHistoryAdapter adapter = new PaymentHistoryAdapter(payments);
+        paymentHistoryRecycler.setAdapter(adapter);
+        paymentHistoryRecycler.setLayoutManager(new LinearLayoutManager(this));
+        
+        Log.d(TAG, "Payment history setup completed with " + payments.size() + " items");
     }
 
     // Function to display a phone number input dialog
