@@ -22,7 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.payhome.R;
 import com.example.payhome.adapters.PaymentHistoryAdapter;
 import com.example.payhome.models.Payment;
+import com.example.payhome.models.PaymentReceipt;
 import com.example.payhome.utils.PaymentData;
+import com.example.payhome.dialogs.PaymentMethodDialog;
 import androidx.cardview.widget.CardView;
 
 import java.util.List;
@@ -150,7 +152,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String password = passwordInput.getText().toString();
-                processPayment(phoneNumber, password, paymentType); // Process payment
+                showPaymentMethodDialog(phoneNumber, password, paymentType); // Show payment method selection
             }
         });
 
@@ -165,9 +167,20 @@ public class MainActivity extends Activity {
         builder.show();
     }
 
+    // Function to show payment method selection dialog
+    private void showPaymentMethodDialog(final String phoneNumber, final String password, final String paymentType) {
+        PaymentMethodDialog.showPaymentMethodDialog(this, paymentType, phoneNumber, password, 
+            new PaymentMethodDialog.PaymentMethodListener() {
+                @Override
+                public void onPaymentMethodSelected(String method, String paymentType, String phoneNumber, String password) {
+                    processPayment(phoneNumber, password, paymentType, method);
+                }
+            });
+    }
+
     // Process payment logic
-    private void processPayment(String phoneNumber, String password, String paymentType) {
-        Log.i(TAG, "Processing " + paymentType + " payment for phone: " + phoneNumber);
+    private void processPayment(String phoneNumber, String password, String paymentType, String paymentMethod) {
+        Log.i(TAG, "Processing " + paymentType + " payment for phone: " + phoneNumber + " via " + paymentMethod);
         
         if (password.isEmpty()) {
             Log.e(TAG, "Password is empty - payment failed");
@@ -178,25 +191,113 @@ public class MainActivity extends Activity {
         // Validate against stored phone number
         if (phoneNumber.equals(USER_PHONE_NUMBER)) {
             Log.d(TAG, "Phone number validated successfully");
-            // Call MpesaApi to process the payment
-            com.example.payhome.MpesaApi.MpesaApi mpesaApi = new com.example.payhome.MpesaApi.MpesaApi();
+            
+            // Process payment based on method
+            boolean paymentSuccess = false;
             String amount = "1000"; // Set the amount for the payment
-            Log.d(TAG, "Initiating M-Pesa payment of amount: " + amount + " for " + paymentType);
-            boolean paymentSuccess = mpesaApi.makePayment(paymentType, password, amount);
+            
+            switch (paymentMethod) {
+                case "M-Pesa":
+                    // Call MpesaApi to process the payment
+                    com.example.payhome.MpesaApi.MpesaApi mpesaApi = new com.example.payhome.MpesaApi.MpesaApi();
+                    paymentSuccess = mpesaApi.makePayment(paymentType, password, amount);
+                    break;
+                case "Bank Card":
+                    // Simulate bank card payment
+                    paymentSuccess = simulateBankCardPayment(paymentType, amount);
+                    break;
+                case "Mobile Banking":
+                    // Simulate mobile banking payment
+                    paymentSuccess = simulateMobileBankingPayment(paymentType, amount);
+                    break;
+            }
 
             if (paymentSuccess) {
-                Log.i(TAG, paymentType + " payment successful - sending confirmation SMS");
-                Toast.makeText(MainActivity.this, paymentType + " payment successful!", Toast.LENGTH_LONG).show();
+                Log.i(TAG, paymentType + " payment successful via " + paymentMethod + " - generating receipt");
+                
+                // Generate payment receipt
+                PaymentReceipt receipt = new PaymentReceipt(
+                    "TXN" + System.currentTimeMillis(),
+                    paymentType,
+                    Double.parseDouble(amount),
+                    paymentMethod,
+                    phoneNumber,
+                    "Success"
+                );
+                
+                Toast.makeText(MainActivity.this, paymentType + " payment successful via " + paymentMethod + "!", Toast.LENGTH_LONG).show();
                 sendConfirmationSMS("John Doe", "House No. 12", paymentType);
+                showPaymentReceipt(receipt);
+                
             } else {
-                Log.e(TAG, paymentType + " payment failed - M-Pesa transaction unsuccessful");
-                Toast.makeText(MainActivity.this, paymentType + " payment failed. Please try again.", Toast.LENGTH_LONG).show();
+                Log.e(TAG, paymentType + " payment failed via " + paymentMethod);
+                Toast.makeText(MainActivity.this, paymentType + " payment failed via " + paymentMethod + ". Please try again.", Toast.LENGTH_LONG).show();
             }
         } else {
             Log.w(TAG, "Phone number validation failed - expected: " + USER_PHONE_NUMBER + ", got: " + phoneNumber);
             Toast.makeText(MainActivity.this, "Incorrect phone number, please try again.", Toast.LENGTH_SHORT).show();
         }
         Log.i(TAG, paymentType + " payment processing completed");
+    }
+
+    // Simulate bank card payment
+    private boolean simulateBankCardPayment(String paymentType, String amount) {
+        // Simulate processing delay
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return Math.random() > 0.1; // 90% success rate
+    }
+
+    // Simulate mobile banking payment
+    private boolean simulateMobileBankingPayment(String paymentType, String amount) {
+        // Simulate processing delay
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return Math.random() > 0.05; // 95% success rate
+    }
+
+    // Show payment receipt dialog
+    private void showPaymentReceipt(PaymentReceipt receipt) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Payment Receipt");
+        
+        String receiptText = receipt.getReceiptSummary();
+        builder.setMessage(receiptText);
+        
+        builder.setPositiveButton("Save Receipt", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(MainActivity.this, "Receipt saved successfully!", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        builder.setNegativeButton("Share Receipt", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                shareReceipt(receipt);
+            }
+        });
+        
+        builder.setNeutralButton("Close", null);
+        builder.show();
+    }
+
+    // Share receipt functionality
+    private void shareReceipt(PaymentReceipt receipt) {
+        String shareText = receipt.getReceiptSummary();
+        
+        android.content.Intent shareIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareText);
+        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Payment Receipt - " + receipt.getReceiptId());
+        
+        startActivity(android.content.Intent.createChooser(shareIntent, "Share Payment Receipt"));
     }
 
     // Function to send confirmation SMS
