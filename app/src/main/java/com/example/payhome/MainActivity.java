@@ -10,6 +10,7 @@ import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import android.app.Activity;
@@ -46,11 +47,25 @@ public class MainActivity extends Activity {
         // Check for SMS and Internet permissions
         checkForPermissions();
 
+        // Set up analytics button directly in onCreate
+        Log.d(TAG, "Setting up analytics button directly...");
+        TextView analyticsButton = findViewById(R.id.btn_analytics_simple);
+        if (analyticsButton != null) {
+            Log.d(TAG, "Analytics button found! Setting click listener");
+            analyticsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "Analytics button clicked!");
+                    android.content.Intent intent = new android.content.Intent(MainActivity.this, AnalyticsActivity.class);
+                    startActivity(intent);
+                }
+            });
+        } else {
+            Log.e(TAG, "Analytics button NOT found!");
+        }
+
         // Set up payment cards click listeners
         setupPaymentCards();
-
-        // Set up analytics button
-        setupAnalyticsButton();
 
         // Set up payment history
         setupPaymentHistory();
@@ -59,42 +74,50 @@ public class MainActivity extends Activity {
     }
 
     private void setupPaymentCards() {
-        // Find payment cards container
-        View paymentCards = findViewById(R.id.payment_cards);
-        
-        // Get individual card views from the LinearLayout
-        if (paymentCards instanceof android.widget.LinearLayout) {
-            android.widget.LinearLayout cardsLayout = (android.widget.LinearLayout) paymentCards;
+        try {
+            Log.d(TAG, "Setting up payment cards...");
+            // Find payment cards container
+            View paymentCards = findViewById(R.id.payment_cards);
             
-            // Rent card (first child)
-            CardView rentCardView = (CardView) cardsLayout.getChildAt(0);
-            rentCardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "Pay Rent card clicked");
-                    showPhoneNumberDialog("Rent");
-                }
-            });
+            // Get individual card views from the LinearLayout
+            if (paymentCards instanceof android.widget.LinearLayout) {
+                android.widget.LinearLayout cardsLayout = (android.widget.LinearLayout) paymentCards;
+                
+                // Rent card (first child) - Now shows analytics
+                CardView rentCardView = (CardView) cardsLayout.getChildAt(0);
+                rentCardView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d(TAG, "Rent card clicked - showing analytics");
+                        // Show analytics instead of payment dialog
+                        android.content.Intent intent = new android.content.Intent(MainActivity.this, AnalyticsActivity.class);
+                        startActivity(intent);
+                    }
+                });
 
-            // Electricity card (second child)
-            CardView electricityCardView = (CardView) cardsLayout.getChildAt(1);
-            electricityCardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "Pay Electricity card clicked");
-                    showPhoneNumberDialog("Electricity");
-                }
-            });
+                // Electricity card (second child)
+                CardView electricityCardView = (CardView) cardsLayout.getChildAt(1);
+                electricityCardView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d(TAG, "Pay Electricity card clicked");
+                        showPhoneNumberDialog("Electricity");
+                    }
+                });
 
-            // Water card (third child)
-            CardView waterCardView = (CardView) cardsLayout.getChildAt(2);
-            waterCardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "Pay Water card clicked");
-                    showPhoneNumberDialog("Water");
-                }
-            });
+                // Water card (third child)
+                CardView waterCardView = (CardView) cardsLayout.getChildAt(2);
+                waterCardView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d(TAG, "Pay Water card clicked");
+                        showPhoneNumberDialog("Water");
+                    }
+                });
+            }
+            Log.d(TAG, "Payment cards setup completed");
+        } catch (Exception e) {
+            Log.e(TAG, "Error setting up payment cards", e);
         }
     }
 
@@ -110,21 +133,6 @@ public class MainActivity extends Activity {
         paymentHistoryRecycler.setLayoutManager(new LinearLayoutManager(this));
         
         Log.d(TAG, "Payment history setup completed with " + payments.size() + " items");
-    }
-
-    private void setupAnalyticsButton() {
-        Button analyticsButton = findViewById(R.id.btn_analytics);
-        analyticsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Analytics button clicked");
-                // Open Analytics Activity
-                android.content.Intent intent = new android.content.Intent(MainActivity.this, AnalyticsActivity.class);
-                startActivity(intent);
-            }
-        });
-        
-        Log.d(TAG, "Analytics button setup completed");
     }
 
     // Function to display a phone number input dialog
