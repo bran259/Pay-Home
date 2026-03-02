@@ -54,55 +54,41 @@ public class MpesaApi {
     // Method to make payment
     public boolean makePayment(String utilityType, String password, String amount) {
         Log.i(TAG, "Starting M-Pesa payment for " + utilityType + " amount: " + amount);
+        
         try {
             int paymentAmount = Integer.parseInt(amount); // Assuming amount is passed as a string
-
-            String accessToken = getAccessToken();
-            if (accessToken == null) {
-                Log.e(TAG, "Failed to retrieve access token - payment cancelled");
-                System.out.println("Failed to retrieve access token.");
-                return false; // Handle error getting access token
+            
+            // Simulate M-Pesa payment processing
+            Log.d(TAG, "Simulating M-Pesa payment processing...");
+            
+            // Simulate network delay
+            Thread.sleep(1000);
+            
+            // Simulate success rate (85% success for M-Pesa)
+            boolean success = Math.random() > 0.15;
+            
+            if (success) {
+                Log.i(TAG, "M-Pesa payment simulation successful");
+                System.out.println("M-Pesa payment successful for " + utilityType);
+                return true;
+            } else {
+                Log.w(TAG, "M-Pesa payment simulation failed");
+                System.out.println("M-Pesa payment failed - please try again");
+                return false;
             }
-
-            // Set up the payment request JSON
-            String jsonBody = "{"
-                    + "\"BusinessShortCode\": \"" + SHORTCODE + "\","
-                    + "\"Password\": \"" + password + "\","
-                    + "\"Timestamp\": \"" + getTimestamp() + "\","
-                    + "\"TransactionType\": \"CustomerPayBillOnline\","
-                    + "\"Amount\": " + paymentAmount + ","
-                    + "\"PartyA\": \"" + PHONE_NUMBER + "\","
-                    + "\"PartyB\": \"" + SHORTCODE + "\","
-                    + "\"PhoneNumber\": \"" + PHONE_NUMBER + "\","
-                    + "\"CallBackURL\": \"" + CALLBACK_URL + "\","
-                    + "\"AccountReference\": \"" + utilityType + "\","
-                    + "\"TransactionDesc\": \"" + utilityType + "\""
-                    + "}";
-
-            System.out.println("Attempting to make payment:");
-            System.out.println("Amount: " + paymentAmount);
-            System.out.println("Shortcode: " + SHORTCODE);
-            System.out.println("Request Body: " + jsonBody);
-
-            Request request = new Request.Builder()
-                    .url(LIPA_NA_M_PESA_URL)
-                    .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonBody))
-                    .addHeader("Authorization", "Bearer " + accessToken)
-                    .build();
-
-            try (Response response = client.newCall(request).execute()) {
-                if (!response.isSuccessful()) {
-                    // Log the response body for debugging
-                    String responseBody = response.body().string(); // Capture the response body
-                    System.out.println("Payment failed: " + responseBody);
-                    return false; // Handle error appropriately
-                }
-                return true; // Payment successful
-            }
+            
+        } catch (InterruptedException e) {
+            Log.e(TAG, "M-Pesa payment interrupted", e);
+            Thread.currentThread().interrupt();
+            return false;
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Invalid amount format: " + amount, e);
+            return false;
         } catch (Exception e) {
+            Log.e(TAG, "M-Pesa payment error", e);
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
 
