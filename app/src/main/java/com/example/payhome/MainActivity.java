@@ -33,27 +33,47 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "Layout set successfully");
 
-        // Get reference to the payment button
-        Button payButton = findViewById(R.id.PayButton); // Ensure you have a button with this ID
+        // Get reference to the payment buttons
+        Button payButton = findViewById(R.id.PayButton); // Pay Rent button
+        Button payStimaButton = findViewById(R.id.PayStima); // Pay Electricity button
+        Button payWaterButton = findViewById(R.id.PayWater); // Pay Water button
 
         // Check for SMS and Internet permissions
         checkForPermissions();
 
-        // Set up the onClickListener for the payment button
+        // Set up the onClickListener for the Pay Rent button
         payButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "Payment button clicked");
-                showPhoneNumberDialog(); // Prompt for phone number first
+                Log.d(TAG, "Pay Rent button clicked");
+                showPhoneNumberDialog("Rent"); // Prompt for phone number first
+            }
+        });
+
+        // Set up the onClickListener for the Pay Electricity button
+        payStimaButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Pay Electricity button clicked");
+                showPhoneNumberDialog("Electricity"); // Prompt for phone number first
+            }
+        });
+
+        // Set up the onClickListener for the Pay Water button
+        payWaterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Pay Water button clicked");
+                showPhoneNumberDialog("Water"); // Prompt for phone number first
             }
         });
         Log.i(TAG, "MainActivity setup completed");
     }
 
     // Function to display a phone number input dialog
-    private void showPhoneNumberDialog() {
+    private void showPhoneNumberDialog(final String paymentType) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Enter your phone number");
+        builder.setTitle("Enter your phone number for " + paymentType + " payment");
 
         final EditText phoneInput = new EditText(MainActivity.this);
         phoneInput.setInputType(InputType.TYPE_CLASS_PHONE);
@@ -64,7 +84,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String phoneNumber = phoneInput.getText().toString();
-                showPasswordDialog(phoneNumber); // Prompt for password next
+                showPasswordDialog(phoneNumber, paymentType); // Prompt for password next
             }
         });
 
@@ -80,9 +100,9 @@ public class MainActivity extends Activity {
     }
 
     // Function to display a password input dialog
-    private void showPasswordDialog(final String phoneNumber) {
+    private void showPasswordDialog(final String phoneNumber, final String paymentType) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Enter your password");
+        builder.setTitle("Enter your password for " + paymentType + " payment");
 
         final EditText passwordInput = new EditText(MainActivity.this);
         passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -93,7 +113,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String password = passwordInput.getText().toString();
-                processPayment(phoneNumber, password); // Process payment
+                processPayment(phoneNumber, password, paymentType); // Process payment
             }
         });
 
@@ -109,8 +129,8 @@ public class MainActivity extends Activity {
     }
 
     // Process payment logic
-    private void processPayment(String phoneNumber, String password) {
-        Log.i(TAG, "Processing payment for phone: " + phoneNumber);
+    private void processPayment(String phoneNumber, String password, String paymentType) {
+        Log.i(TAG, "Processing " + paymentType + " payment for phone: " + phoneNumber);
         
         if (password.isEmpty()) {
             Log.e(TAG, "Password is empty - payment failed");
@@ -124,22 +144,22 @@ public class MainActivity extends Activity {
             // Call MpesaApi to process the payment
             com.example.payhome.MpesaApi.MpesaApi mpesaApi = new com.example.payhome.MpesaApi.MpesaApi();
             String amount = "1000"; // Set the amount for the payment
-            Log.d(TAG, "Initiating M-Pesa payment of amount: " + amount);
-            boolean paymentSuccess = mpesaApi.makePayment("Rent", password, amount);
+            Log.d(TAG, "Initiating M-Pesa payment of amount: " + amount + " for " + paymentType);
+            boolean paymentSuccess = mpesaApi.makePayment(paymentType, password, amount);
 
             if (paymentSuccess) {
-                Log.i(TAG, "Payment successful - sending confirmation SMS");
-                Toast.makeText(MainActivity.this, "Payment successful!", Toast.LENGTH_LONG).show();
-                sendConfirmationSMS("John Doe", "House No. 12", "Rent");
+                Log.i(TAG, paymentType + " payment successful - sending confirmation SMS");
+                Toast.makeText(MainActivity.this, paymentType + " payment successful!", Toast.LENGTH_LONG).show();
+                sendConfirmationSMS("John Doe", "House No. 12", paymentType);
             } else {
-                Log.e(TAG, "Payment failed - M-Pesa transaction unsuccessful");
-                Toast.makeText(MainActivity.this, "Payment failed. Please try again.", Toast.LENGTH_LONG).show();
+                Log.e(TAG, paymentType + " payment failed - M-Pesa transaction unsuccessful");
+                Toast.makeText(MainActivity.this, paymentType + " payment failed. Please try again.", Toast.LENGTH_LONG).show();
             }
         } else {
             Log.w(TAG, "Phone number validation failed - expected: " + USER_PHONE_NUMBER + ", got: " + phoneNumber);
             Toast.makeText(MainActivity.this, "Incorrect phone number, please try again.", Toast.LENGTH_SHORT).show();
         }
-        Log.i(TAG, "Payment processing completed");
+        Log.i(TAG, paymentType + " payment processing completed");
     }
 
     // Function to send confirmation SMS
